@@ -1,4 +1,4 @@
-import { getSheet } from "../../../lib/sheets";
+import { getSheetByTitle } from "../../lib/sheets";
 import { sha256 } from "../../../lib/security";
 import { issueToken, setCookie } from "../../../lib/session";
 
