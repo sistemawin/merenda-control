@@ -2,9 +2,8 @@ import Link from "next/link";
 
 export default function AppShell({ children, title }) {
   async function sair() {
-    await fetch("/api/logout");
-    window.location.href = "/login";
-  }
+  window.location.href = "/logout";
+}
 
   return (
     <div className="flex min-h-screen bg-slate-900 text-white">
