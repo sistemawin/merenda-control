@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+export async function getServerSideProps() {
+  return {
+    redirect: {
+      destination: "/login",
+      permanent: false,
+    },
+  };
+}
 
 export default function Home() {
-  useEffect(() => {
-    window.location.href = "/login";
-  }, []);
-
   return null;
 }
