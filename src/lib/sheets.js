@@ -2,11 +2,19 @@ import { GoogleSpreadsheet } from "google-spreadsheet";
 import { JWT } from "google-auth-library";
 
 function getAuth() {
-  const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
-  const key = (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
+  const b64 = process.env.GOOGLE_SERVICE_ACCOUNT_JSON_B64;
+
+  if (!b64) {
+    throw new Error("GOOGLE_SERVICE_ACCOUNT_JSON_B64 não configurado");
+  }
+
+  const json = JSON.parse(Buffer.from(b64, "base64").toString("utf8"));
+
+  const email = json.client_email;
+  const key = (json.private_key || "").replace(/\\n/g, "\n");
 
   if (!email || !key) {
-    throw new Error("Credenciais do Google não configuradas no .env.local");
+    throw new Error("Credenciais do Google inválidas");
   }
 
   return new JWT({
