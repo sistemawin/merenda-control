@@ -5,11 +5,9 @@ function getAuth() {
   const email = process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL;
   const key = (process.env.GOOGLE_PRIVATE_KEY || "").replace(/\\n/g, "\n");
 
-  if (!email || !key || !process.env.GOOGLE_SHEET_ID) {
-  throw new Error(
-    `ENV DEBUG → email=${!!email} | key=${!!key} | sheet=${!!process.env.GOOGLE_SHEET_ID}`
-  );
-}
+  if (!email || !key) {
+    throw new Error("Credenciais do Google não configuradas no .env.local");
+  }
 
   return new JWT({
     email,
