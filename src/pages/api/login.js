@@ -1,6 +1,7 @@
+import { serialize } from "cookie";
 import { getSheetByTitle } from "@/lib/sheets";
 import bcrypt from "bcryptjs";
-import cookie from "cookie";
+
 
 function rowCell(row, idx) {
   return row?._rawData?.[idx] ?? "";
@@ -57,7 +58,7 @@ export default async function handler(req, res) {
 
     res.setHeader(
       "Set-Cookie",
-      cookie.serialize("auth", JSON.stringify({ usuario: u, role }), {
+      serialize("auth", JSON.stringify({ usuario: u, role }), {
         httpOnly: true,
         path: "/",
         sameSite: "lax",
