@@ -6,9 +6,9 @@ export default function AppShell({ children, title }) {
 }
 
   return (
-    <div className="flex min-h-screen bg-slate-900 text-white">
+    <div className="min-h-screen bg-slate-900 text-white md:flex">
       {/* MENU */}
-      <aside className="w-56 p-4 bg-slate-950 border-r border-slate-800 flex flex-col justify-between">
+      <aside className="w-full md:w-56 p-4 bg-slate-950 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col justify-between">
         <div>
           <h2 className="text-lg font-semibold mb-6">Merenda Control</h2>
 
@@ -30,7 +30,7 @@ export default function AppShell({ children, title }) {
       </aside>
 
       {/* CONTEÚDO */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 w-full p-3 sm: p-6">
         {title ? <h1 className="text-xl font-semibold mb-4">{title}</h1> : null}
         {children}
       </main>
