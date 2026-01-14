@@ -81,7 +81,7 @@ export default async function handler(req, res) {
     let start = normalizeDate(req.query?.start);
     let end = normalizeDate(req.query?.end);
 
-    if (preset === "7" || preset === "30" || preset === "90") {
+    if (preset === "0" || preset === "7" || preset === "30" || preset === "90") {
       start = daysAgoISO(Number(preset));
       end = ""; // até hoje
     }

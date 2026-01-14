@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const [endBR, setEndBR] = useState(""); // dd/mm/aaaa
 
   // preset rápido
-  const [preset, setPreset] = useState("30"); // 7 | 30 | 90 | all | manual
+  const [preset, setPreset] = useState("30"); // 0 | 7 | 30 | 90 | all | manual
 
   async function carregar({ mode } = { mode: "preset" }) {
     setLoading(true);
@@ -106,6 +106,7 @@ export default function DashboardPage() {
       {/* PRESETS */}
       <div className="flex flex-wrap gap-2 mb-4">
         {[
+          { k: "0", label: "Hoje" },
           { k: "7", label: "7 dias" },
           { k: "30", label: "30 dias" },
           { k: "90", label: "90 dias" },
