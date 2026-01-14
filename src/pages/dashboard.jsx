@@ -39,7 +39,7 @@ export default function DashboardPage() {
   const [endBR, setEndBR] = useState(""); // dd/mm/aaaa
 
   // preset rápido
-  const [preset, setPreset] = useState("30"); // 0 | 7 | 30 | 90 | all | manual
+  const [preset, setPreset] = useState("0"); // 0 | 7 | 30 | 90 | all | manual
 
   async function carregar(
   { mode = "preset", presetOverride } = {}
@@ -82,9 +82,9 @@ export default function DashboardPage() {
   }
 
   useEffect(() => {
-    carregar({ mode: "preset" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  setPreset("0");
+  carregar({ mode: "preset" }, "0");
+}, []);
 
   const m = data?.metrics || {};
   const resumo = data?.resumoPorDia || [];
