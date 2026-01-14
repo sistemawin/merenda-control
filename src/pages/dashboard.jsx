@@ -41,11 +41,14 @@ export default function DashboardPage() {
   // preset rápido
   const [preset, setPreset] = useState("30"); // 0 | 7 | 30 | 90 | all | manual
 
-  async function carregar({ mode } = { mode: "preset" }) {
+  async function carregar(
+  { mode = "preset", presetOverride } = {}
+) {
     setLoading(true);
     setErro("");
     try {
       let url = "/api/dashboard";
+      const p = presetOverride ?? preset;
 
       if (mode === "manual") {
         const start = toISOFromBR(startBR);
@@ -55,8 +58,9 @@ export default function DashboardPage() {
         if (end) qs.push(`end=${encodeURIComponent(end)}`);
         if (qs.length) url += `?${qs.join("&")}`;
       } else if (mode === "preset") {
-        if (preset !== "all") url += `?preset=${encodeURIComponent(preset)}`;
-      }
+  const p = presetOverride ?? preset; // usa o override do "Hoje" se existir
+  if (p !== "all") url += `?preset=${encodeURIComponent(p)}`;
+}
 
       const r = await fetch(url, { cache: "no-store" });
       const j = await r.json();
@@ -116,7 +120,7 @@ export default function DashboardPage() {
             key={b.k}
             onClick={() => {
               setPreset(b.k);
-              carregar({ mode: "preset" });
+              carregar({ mode: "preset", presetOverride: b.k });
             }}
             className={`px-3 py-2 rounded-md text-sm ${
               preset === b.k ? "bg-indigo-600" : "bg-zinc-800 hover:bg-zinc-700"
