@@ -62,17 +62,16 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const rows = await sheet.getRows();
 
-      // Sua planilha (print):
       // A=id | B=data | C=categoria | D=descricao | E=valor
       const despesas = rows
         .map((r) => ({
-          id: String(rowCell(r, 0)).trim(),              // A: id
-          data: normalizeDate(rowCell(r, 1)),            // B: data
-          categoria: String(rowCell(r, 2)).trim(),       // C: categoria
-          descricao: String(rowCell(r, 3)).trim(),       // D: descricao
-          valor: toNumberBR(rowCell(r, 4)),              // E: valor
+          id: String(rowCell(r, 0)).trim(),        // A: id
+          data: normalizeDate(rowCell(r, 1)),      // B: data
+          categoria: String(rowCell(r, 2)).trim(), // C: categoria
+          descricao: String(rowCell(r, 3)).trim(), // D: descricao
+          valor: toNumberBR(rowCell(r, 4)),        // E: valor
         }))
-        .filter((d) => d.data && d.valor > 0);
+        .filter((d) => d.id && d.data); // mantém tudo que tem id e data
 
       return res.status(200).json({ ok: true, despesas });
     }
@@ -83,15 +82,12 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       const { data, descricao, valor, categoria } = req.body || {};
 
-      if (!data || !descricao || !valor) {
+      if (!data || !descricao || valor === undefined || valor === null || valor === "") {
         return res
           .status(400)
           .json({ ok: false, error: "Preencha data, descrição e valor." });
       }
 
-      // IMPORTANTÍSSIMO:
-      // Salvar NA ORDEM DO HEADER DO SHEETS:
-      // id, data, categoria, descricao, valor
       await sheet.addRow({
         id: String(Date.now()),
         data: normalizeDate(data),
@@ -103,10 +99,64 @@ export default async function handler(req, res) {
       return res.status(200).json({ ok: true });
     }
 
+    // =====================
+    // EDITAR (PUT)
+    // =====================
+    if (req.method === "PUT") {
+      const { id } = req.query || {};
+      const { data, descricao, valor, categoria } = req.body || {};
+
+      if (!id) {
+        return res.status(400).json({ ok: false, error: "Informe o id." });
+      }
+
+      if (!data || !descricao || valor === undefined || valor === null || valor === "") {
+        return res
+          .status(400)
+          .json({ ok: false, error: "Preencha data, descrição e valor." });
+      }
+
+      const rows = await sheet.getRows();
+      const row = rows.find((r) => String(rowCell(r, 0)).trim() === String(id).trim());
+
+      if (!row) {
+        return res.status(404).json({ ok: false, error: "Despesa não encontrada." });
+      }
+
+      // Atualiza respeitando as colunas
+      // A=id | B=data | C=categoria | D=descricao | E=valor
+      row._rawData[1] = normalizeDate(data);               // B
+      row._rawData[2] = String(categoria || "").trim();    // C
+      row._rawData[3] = String(descricao || "").trim();    // D
+      row._rawData[4] = toNumberBR(valor);                 // E
+
+      await row.save();
+      return res.status(200).json({ ok: true });
+    }
+
+    // =====================
+    // REMOVER (DELETE)
+    // =====================
+    if (req.method === "DELETE") {
+      const { id } = req.query || {};
+
+      if (!id) {
+        return res.status(400).json({ ok: false, error: "Informe o id." });
+      }
+
+      const rows = await sheet.getRows();
+      const row = rows.find((r) => String(rowCell(r, 0)).trim() === String(id).trim());
+
+      if (!row) {
+        return res.status(404).json({ ok: false, error: "Despesa não encontrada." });
+      }
+
+      await row.delete();
+      return res.status(200).json({ ok: true });
+    }
+
     return res.status(405).json({ ok: false, error: "Método não permitido" });
   } catch (e) {
-    return res
-      .status(500)
-      .json({ ok: false, error: e.message || "Erro interno" });
+    return res.status(500).json({ ok: false, error: e.message || "Erro interno" });
   }
 }
