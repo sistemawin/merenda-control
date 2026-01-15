@@ -113,7 +113,7 @@ export default function VendasPage() {
   }
 
   function removerItem(produto_id) {
-    setItens((prev) => prev.filter((x) => String(x.produto_id) !== String(produto_id)));
+    setItens((prev) => prev.filter((x) => String(x.produto_id) !== String(String(produto_id))));
   }
 
   async function finalizarVenda() {
@@ -210,9 +210,30 @@ export default function VendasPage() {
           <div className="md:col-span-1">
             <label className="text-xs text-zinc-400">Qtd</label>
             <input
+              type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              min="1"
+              step="1"
               className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
               value={qtd}
-              onChange={(e) => setQtd(e.target.value)}
+              onChange={(e) => {
+                // deixa o usuário apagar e digitar ("" temporário é OK)
+                const val = e.target.value;
+                if (val === "") return setQtd("");
+                // aceita só dígitos (evita "e", "-", etc em alguns teclados)
+                if (/^\d+$/.test(val)) setQtd(val);
+              }}
+              onBlur={() => {
+                // quando sai do campo, normaliza: vazio -> 1, zero -> 1
+                const n = parseInt(qtd || "1", 10);
+                if (!Number.isFinite(n) || n < 1) setQtd("1");
+                else setQtd(String(n));
+              }}
+              onKeyDown={(e) => {
+                // evita o Enter/Go do celular “sair da tela” ou disparar submit/ação estranha
+                if (e.key === "Enter") e.preventDefault();
+              }}
               placeholder="Ex: 2"
             />
           </div>
