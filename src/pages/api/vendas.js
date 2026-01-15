@@ -183,7 +183,45 @@ export default async function handler(req, res) {
         },
       });
     }
+    // ===== DELETE: APAGAR VENDA =====
+if (req.method === "DELETE") {
+  const { id } = req.query;
 
+  if (!id) {
+    return res.status(400).json({
+      ok: false,
+      error: "ID da venda é obrigatório",
+    });
+  }
+
+  const vendasSheet = await getSheetByTitle("vendas");
+  const itensSheet = await getSheetByTitle("venda_itens");
+
+  // apagar venda
+  const vendasRows = await vendasSheet.getRows();
+  const vendaRow = vendasRows.find(r => String(r._rawData[0]) === String(id));
+
+  if (!vendaRow) {
+    return res.status(404).json({
+      ok: false,
+      error: "Venda não encontrada",
+    });
+  }
+
+  await vendaRow.delete();
+
+  // apagar itens da venda
+  const itensRows = await itensSheet.getRows();
+  const itensDaVenda = itensRows.filter(
+    r => String(r._rawData[0]) === String(id)
+  );
+
+  for (const item of itensDaVenda) {
+    await item.delete();
+  }
+
+  return res.status(200).json({ ok: true });
+}
     return res.status(405).json({ ok: false, error: "Use GET ou POST" });
   } catch (e) {
     return res.status(500).json({ ok: false, error: e.message || "Erro interno" });

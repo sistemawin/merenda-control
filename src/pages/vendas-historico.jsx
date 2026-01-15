@@ -6,6 +6,24 @@ function money(n) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
+async function apagarVenda(id) {
+  if (!confirm("Tem certeza que deseja apagar esta venda?")) return;
+
+  const res = await fetch(`/api/vendas?id=${id}`, {
+    method: "DELETE",
+  });
+
+  const data = await res.json();
+
+  if (!data.ok) {
+    alert("Erro ao apagar a venda");
+    return;
+  }
+
+  alert("Venda apagada com sucesso");
+  window.location.reload();
+}
+
 export default function VendasHistoricoPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
@@ -142,6 +160,18 @@ export default function VendasHistoricoPage() {
                   {v.observacao ? (
                     <div className="text-sm text-zinc-300 mt-1">Obs: {v.observacao}</div>
                   ) : null}
+                </div>
+
+                {/* ✅ Botão de apagar no lugar certo (ao lado das infos, e à direita no desktop) */}
+                <div className="flex gap-2 md:justify-end">
+                  <button
+                    type="button"
+                    onClick={() => apagarVenda(v.id)}
+                    className="px-3 py-2 rounded-md bg-red-600/20 text-red-200 border border-red-500/30 hover:bg-red-600/30 text-sm font-semibold"
+                    title="Apagar esta venda"
+                  >
+                    Apagar
+                  </button>
                 </div>
               </div>
 
