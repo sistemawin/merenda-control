@@ -29,22 +29,36 @@ function toInt(v) {
   const n = Math.floor(toNumberBR(v));
   return Number.isFinite(n) ? n : 0;
 }
-{
+
+function formatISODateSP(dateObj) {
+  // Formata Date -> YYYY-MM-DD no fuso de São Paulo
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(dateObj);
+}
+
+function todayISO_SP() {
+  return formatISODateSP(new Date());
+}
+
+function daysAgoISO(n) {
+  // Baseia no "hoje" de SP, mas calcula com segurança em UTC (sem virar dia)
+  const baseYMD = todayISO_SP(); // YYYY-MM-DD já correto em SP
+  const d = new Date(`${baseYMD}T12:00:00-03:00`); // meio-dia SP (evita bordas)
+  d.setUTCDate(d.getUTCDate() - Number(n || 0));
+  return formatISODateSP(d);
+}
+
 function normalizeDate(v) {
   if (!v) return "";
 
+  // Date object -> YYYY-MM-DD no fuso de SP
   if (v instanceof Date && !isNaN(v.getTime())) {
-    return new Intl.DateTimeFormat("en-CA", {
-      timeZone: "America/Sao_Paulo",
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    }).format(v);
+    return formatISODateSP(v);
   }
-
-  return String(v).slice(0, 10);
-}
-
 
   const s = String(v).trim();
   if (!s) return "";
@@ -56,7 +70,7 @@ function normalizeDate(v) {
   const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
   if (m) return `${m[3]}-${m[2]}-${m[1]}`;
 
-  // ISO with time
+  // ISO com hora -> pega só a data
   const iso = s.match(/^(\d{4}-\d{2}-\d{2})/);
   if (iso) return iso[1];
 
@@ -74,19 +88,6 @@ function rowCell(row, idx) {
   return row?._rawData?.[idx] ?? "";
 }
 
-function daysAgoISO(n) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
-
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
-}
-
-
 export default async function handler(req, res) {
   try {
     if (req.method !== "GET") {
@@ -95,25 +96,19 @@ export default async function handler(req, res) {
 
     // filtros:
     // - start=YYYY-MM-DD&end=YYYY-MM-DD
-    // - preset=7|30|90 (ignora start/end se preset existir)
-    const preset = String(req.query?.preset || "").trim(); // "7"|"30"|"90"
+    // - preset=0|7|30|90 (ignora start/end se preset existir)
+    const preset = String(req.query?.preset || "").trim(); // "0"|"7"|"30"|"90"
     let start = normalizeDate(req.query?.start);
     let end = normalizeDate(req.query?.end);
 
     if (preset === "0") {
-  const hoje = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(new Date());
-
-  start = hoje;
-  end = hoje; // somente hoje (não pega ontem/amanhã)
-} else if (preset === "7" || preset === "30" || preset === "90") {
-  start = daysAgoISO(Number(preset));
-  end = ""; // até hoje
-}
+      const hoje = todayISO_SP();
+      start = hoje;
+      end = hoje; // somente hoje
+    } else if (preset === "7" || preset === "30" || preset === "90") {
+      start = daysAgoISO(Number(preset));
+      end = ""; // até hoje
+    }
 
     const vendasSheet = await getSheetByTitle("vendas");
     const itensSheet = await getSheetByTitle("venda_itens");
@@ -241,7 +236,8 @@ export default async function handler(req, res) {
     const prodAgg = new Map(); // produto -> {produto,qtd,faturamento,lucro}
     for (const it of itens) {
       const key = it.produto_nome || it.produto_id || "Sem nome";
-      if (!prodAgg.has(key)) prodAgg.set(key, { produto: key, qtd: 0, faturamento: 0, lucro: 0 });
+      if (!prodAgg.has(key))
+        prodAgg.set(key, { produto: key, qtd: 0, faturamento: 0, lucro: 0 });
 
       const obj = prodAgg.get(key);
       const qtd = it.qtd || 0;
