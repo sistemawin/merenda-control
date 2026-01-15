@@ -47,7 +47,7 @@ async function apagarVenda(id) {
   }
 }
 
-export default function MovimentosPage() {
+export default function historicoPage() {
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState("");
   const [lista, setLista] = useState([]);
@@ -60,7 +60,7 @@ export default function MovimentosPage() {
     setLoading(true);
     setErro("");
     try {
-      const r = await fetch("/api/movimentos", { cache: "no-store" });
+      const r = await fetch("/api/historico", { cache: "no-store" });
       const j = await r.json();
       if (!j.ok) throw new Error(j.error || "Erro ao carregar histórico");
       setLista(j.historico || []);

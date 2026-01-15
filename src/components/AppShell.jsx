@@ -16,7 +16,7 @@ export default function AppShell({ children, title }) {
             <Link href="/dashboard">📊 Dashboard</Link>
             <Link href="/pdv">🧾 Caixa</Link>
             <Link href="/produtos">📦 Produtos</Link>
-            <Link href="/movimentos">📜 Histórico</Link>
+            <Link href="/historico">📜 Histórico</Link>
             <Link href="/despesas">💸 Despesas</Link>
           </nav>
         </div>
