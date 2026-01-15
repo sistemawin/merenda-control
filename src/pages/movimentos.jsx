@@ -18,9 +18,6 @@ function todayISO() {
 function daysAgoISO(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  function daysAgoISO(n) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
 
   return new Intl.DateTimeFormat("en-CA", {
     timeZone: "America/Sao_Paulo",
@@ -29,6 +26,25 @@ function daysAgoISO(n) {
     day: "2-digit",
   }).format(d);
 }
+
+// ✅ NOVO: remover venda (chama sua API DELETE)
+async function apagarVenda(id) {
+  if (!confirm("Tem certeza que deseja remover esta venda?")) return;
+
+  try {
+    const res = await fetch(`/api/vendas?id=${id}`, { method: "DELETE" });
+    const data = await res.json();
+
+    if (!data.ok) {
+      alert(data.error || "Erro ao remover a venda");
+      return;
+    }
+
+    alert("Venda removida com sucesso!");
+    window.location.reload();
+  } catch (e) {
+    alert("Erro ao remover a venda");
+  }
 }
 
 export default function MovimentosPage() {
@@ -70,9 +86,7 @@ export default function MovimentosPage() {
   return (
     <AppShell title="Histórico de Vendas">
       <h1 className="text-xl font-semibold mb-1">Histórico de vendas</h1>
-      <p className="text-sm text-zinc-400 mb-4">
-        Consulte vendas por período.
-      </p>
+      <p className="text-sm text-zinc-400 mb-4">Consulte vendas por período.</p>
 
       {/* FILTROS */}
       <div className="rounded-xl border border-zinc-800 bg-zinc-900/30 p-4 mb-5">
@@ -174,18 +188,27 @@ export default function MovimentosPage() {
                     >
                       <td className="p-3">{v.data}</td>
                       <td className="p-3">{v.forma_pagamento}</td>
-                      <td className="p-3 font-semibold">
-                        {money(v.total)}
-                      </td>
+                      <td className="p-3 font-semibold">{money(v.total)}</td>
+
+                      {/* ✅ AQUI: mesmo lugar do "Ver itens" */}
                       <td className="p-3">
-                        <button
-                          onClick={() =>
-                            setOpenId(aberto ? null : v.id)
-                          }
-                          className="px-3 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs"
-                        >
-                          {aberto ? "Fechar" : "Ver itens"}
-                        </button>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setOpenId(aberto ? null : v.id)}
+                            className="px-3 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 text-xs"
+                          >
+                            {aberto ? "Fechar" : "Ver itens"}
+                          </button>
+
+                          <button
+                            onClick={() => apagarVenda(v.id)}
+                            className="px-3 py-1 rounded-md bg-red-600 hover:bg-red-500 text-xs font-semibold"
+                            type="button"
+                            title="Remover venda"
+                          >
+                            Remover
+                          </button>
+                        </div>
                       </td>
                     </tr>
 
