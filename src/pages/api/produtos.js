@@ -43,7 +43,13 @@ export default async function handler(req, res) {
       }
 
       const newId = String(id || Date.now());
-      const criado_em = new Date().toISOString().slice(0, 10);
+      const criado_em = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "America/Sao_Paulo",
+  year: "numeric",
+  month: "2-digit",
+  day: "2-digit",
+}).format(new Date());
+
 
       // addRow usa o header da planilha (linha 1) como chave
       await sheet.addRow({

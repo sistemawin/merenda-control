@@ -18,7 +18,17 @@ function todayISO() {
 function daysAgoISO(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
+  function daysAgoISO(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
 }
 
 export default function MovimentosPage() {

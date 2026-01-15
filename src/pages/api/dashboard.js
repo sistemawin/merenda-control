@@ -32,7 +32,17 @@ function toInt(v) {
 
 function normalizeDate(v) {
   if (!v) return "";
-  if (v instanceof Date && !isNaN(v.getTime())) return v.toISOString().slice(0, 10);
+  if (v instanceof Date && !isNaN(v.getTime())) function daysAgoISO(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
+}
 
   const s = String(v).trim();
   if (!s) return "";
@@ -65,8 +75,15 @@ function rowCell(row, idx) {
 function daysAgoISO(n) {
   const d = new Date();
   d.setDate(d.getDate() - n);
-  return d.toISOString().slice(0, 10);
+
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(d);
 }
+
 
 export default async function handler(req, res) {
   try {
