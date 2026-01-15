@@ -81,10 +81,20 @@ export default async function handler(req, res) {
     let start = normalizeDate(req.query?.start);
     let end = normalizeDate(req.query?.end);
 
-    if (preset === "0" || preset === "7" || preset === "30" || preset === "90") {
-      start = daysAgoISO(Number(preset));
-      end = ""; // até hoje
-    }
+    if (preset === "0") {
+  const hoje = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+
+  start = hoje;
+  end = hoje; // somente hoje (não pega ontem/amanhã)
+} else if (preset === "7" || preset === "30" || preset === "90") {
+  start = daysAgoISO(Number(preset));
+  end = ""; // até hoje
+}
 
     const vendasSheet = await getSheetByTitle("vendas");
     const itensSheet = await getSheetByTitle("venda_itens");
