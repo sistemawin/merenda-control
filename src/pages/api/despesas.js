@@ -1,3 +1,32 @@
+function normalizeDate(v) {
+  if (!v) return "";
+
+  // Date object -> YYYY-MM-DD no fuso de SP
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(v);
+  }
+
+  const s = String(v).trim();
+  if (!s) return "";
+
+  // YYYY-MM-DD
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+
+  // DD/MM/YYYY
+  const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+  if (m) return `${m[3]}-${m[2]}-${m[1]}`;
+
+  // ISO com hora -> pega só a data
+  const iso = s.match(/^(\d{4}-\d{2}-\d{2})/);
+  if (iso) return iso[1];
+
+  return "";
+}
 import { getSheetByTitle } from "@/lib/sheets";
 
 function toNumberBR(v) {
