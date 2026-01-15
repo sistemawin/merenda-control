@@ -11,7 +11,11 @@ function toNumberBR(v) {
   if (typeof v === "number") return Number.isFinite(v) ? v : 0;
   const s = String(v).trim();
   if (!s) return 0;
-  const clean = s.replace(/\s/g, "").replace("R$", "").replace(/\./g, "").replace(",", ".");
+  const clean = s
+    .replace(/\s/g, "")
+    .replace("R$", "")
+    .replace(/\./g, "")
+    .replace(",", ".");
   const n = Number(clean);
   return Number.isFinite(n) ? n : 0;
 }
@@ -61,14 +65,16 @@ export default function PDVPage() {
     carregarProdutos();
   }, []);
 
+  // ✅ Mostra a lista se estiver "aberta" OU se tiver algo digitado na busca
+  const listaVisivel = mostrarLista || busca.trim().length > 0;
+
+  // ✅ Se estiver ABERTO e sem busca: mostra tudo
+  // ✅ Se estiver FECHADO mas digitou busca: mostra filtrado
   const produtosFiltrados = useMemo(() => {
-    if (!mostrarLista) return [];
-
     const q = busca.trim().toLowerCase();
-    if (!q) return []; // não mostra tudo, só pesquisando
-
+    if (!q) return produtos;
     return produtos.filter((p) => p.nome.toLowerCase().includes(q));
-  }, [busca, produtos, mostrarLista]); // ✅ corrigido
+  }, [busca, produtos]);
 
   const total = useMemo(() => {
     return carrinho.reduce(
@@ -237,7 +243,7 @@ export default function PDVPage() {
             </button>
           </div>
 
-          {!mostrarLista ? (
+          {!listaVisivel ? (
             <div className="text-sm text-zinc-400">
               Lista fechada. Clique em <b>Abrir</b> para pesquisar e adicionar.
             </div>
@@ -262,7 +268,7 @@ export default function PDVPage() {
                   ) : produtosFiltrados.length === 0 ? (
                     <tr>
                       <td className="p-3 text-zinc-400" colSpan={4}>
-                        Digite um nome para pesquisar.
+                        Nenhum produto encontrado.
                       </td>
                     </tr>
                   ) : (
@@ -306,7 +312,9 @@ export default function PDVPage() {
           </div>
 
           {carrinho.length === 0 ? (
-            <div className="text-sm text-zinc-400">Adicione produtos para começar.</div>
+            <div className="text-sm text-zinc-400">
+              Adicione produtos para começar.
+            </div>
           ) : (
             <div className="space-y-3">
               {carrinho.map((it) => (
@@ -317,7 +325,9 @@ export default function PDVPage() {
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="font-medium">{it.nome}</div>
-                      <div className="text-xs text-zinc-500">ID: {it.produto_id}</div>
+                      <div className="text-xs text-zinc-500">
+                        ID: {it.produto_id}
+                      </div>
                       <div className="text-xs text-zinc-400 mt-1">
                         Preço: {money(it.preco_unit)}
                       </div>
@@ -354,7 +364,9 @@ export default function PDVPage() {
           {/* pagamento/obs */}
           <div className="mt-4 grid grid-cols-1 gap-3">
             <div>
-              <label className="text-xs text-zinc-400">Forma de pagamento</label>
+              <label className="text-xs text-zinc-400">
+                Forma de pagamento
+              </label>
               <select
                 className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
                 value={forma}
@@ -368,7 +380,9 @@ export default function PDVPage() {
             </div>
 
             <div>
-              <label className="text-xs text-zinc-400">Observação (opcional)</label>
+              <label className="text-xs text-zinc-400">
+                Observação (opcional)
+              </label>
               <input
                 className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
                 placeholder="Ex: fiado, troco, pedido especial..."
