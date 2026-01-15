@@ -146,21 +146,45 @@ export default function DashboardPage() {
           <div>
             <label className="text-xs text-zinc-400">Início (dd/mm/aaaa)</label>
             <input
-              className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
-              placeholder="01/01/2026"
-              value={startBR}
-              onChange={(e) => setStartBR(e.target.value)}
-            />
+  type="date"
+  className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
+  value={
+    startBR
+      ? startBR.split("/").reverse().join("-")
+      : ""
+  }
+  onChange={(e) => {
+    const v = e.target.value; // yyyy-mm-dd
+    if (!v) {
+      setStartBR("");
+    } else {
+      const [y, m, d] = v.split("-");
+      setStartBR(`${d}/${m}/${y}`);
+    }
+  }}
+/>
           </div>
 
           <div>
             <label className="text-xs text-zinc-400">Fim (dd/mm/aaaa)</label>
             <input
-              className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
-              placeholder="31/01/2026"
-              value={endBR}
-              onChange={(e) => setEndBR(e.target.value)}
-            />
+  type="date"
+  className="mt-1 w-full rounded-md bg-zinc-950 border border-zinc-800 px-3 py-2 text-sm"
+  value={
+    endBR
+      ? endBR.split("/").reverse().join("-")
+      : ""
+  }
+  onChange={(e) => {
+    const v = e.target.value; // yyyy-mm-dd
+    if (!v) {
+      setEndBR("");
+    } else {
+      const [y, m, d] = v.split("-");
+      setEndBR(`${d}/${m}/${y}`);
+    }
+  }}
+/>
           </div>
 
           <button
