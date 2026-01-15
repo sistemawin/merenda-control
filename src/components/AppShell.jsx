@@ -1,9 +1,9 @@
 import Link from "next/link";
 
 export default function AppShell({ children, title }) {
-  async function sair() {
-  window.location.href = "/logout";
-}
+  function sair() {
+    window.location.href = "/logout";
+  }
 
   return (
     <div className="min-h-screen bg-slate-900 text-white md:flex">
@@ -22,6 +22,7 @@ export default function AppShell({ children, title }) {
         </div>
 
         <button
+          type="button"
           onClick={sair}
           className="mt-6 text-sm text-red-400 hover:text-red-300"
         >
