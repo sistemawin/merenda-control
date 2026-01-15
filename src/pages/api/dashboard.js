@@ -29,20 +29,22 @@ function toInt(v) {
   const n = Math.floor(toNumberBR(v));
   return Number.isFinite(n) ? n : 0;
 }
-
+{
 function normalizeDate(v) {
   if (!v) return "";
-  if (v instanceof Date && !isNaN(v.getTime())) function daysAgoISO(n) {
-  const d = new Date();
-  d.setDate(d.getDate() - n);
 
-  return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "America/Sao_Paulo",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  }).format(d);
+  if (v instanceof Date && !isNaN(v.getTime())) {
+    return new Intl.DateTimeFormat("en-CA", {
+      timeZone: "America/Sao_Paulo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(v);
+  }
+
+  return String(v).slice(0, 10);
 }
+
 
   const s = String(v).trim();
   if (!s) return "";
