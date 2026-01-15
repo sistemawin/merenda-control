@@ -29,14 +29,14 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const rows = await sheet.getRows();
       const despesas = rows
-        .map((r) => ({
-          id: String(rowCell(r, 0)).trim(),
-          data: String(rowCell(r, 1)).trim(),
-          descricao: String(rowCell(r, 2)).trim(),
-          valor: toNumberBR(rowCell(r, 3)),
-          categoria: String(rowCell(r, 4)).trim(),
-        }))
-        .filter((d) => d.data && d.valor);
+  .map((r) => ({
+    id: String(rowCell(r, 0)).trim(),
+    data: normalizeDate(rowCell(r, 1)), // 👈 AQUI É O PONTO-CHAVE
+    descricao: String(rowCell(r, 2)).trim(),
+    valor: toNumberBR(rowCell(r, 3)),
+    categoria: String(rowCell(r, 4)).trim(),
+  }))
+  .filter((d) => d.data && d.valor > 0);
 
       return res.status(200).json({ ok: true, despesas });
     }
