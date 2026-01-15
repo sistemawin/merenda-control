@@ -69,7 +69,10 @@ export default function PDVPage() {
   }, [busca, produtos]);
 
   const total = useMemo(() => {
-    return carrinho.reduce((acc, it) => acc + Number(it.qtd || 0) * Number(it.preco_unit || 0), 0);
+    return carrinho.reduce(
+      (acc, it) => acc + Number(it.qtd || 0) * Number(it.preco_unit || 0),
+      0
+    );
   }, [carrinho]);
 
   function adicionar(p) {
@@ -96,13 +99,35 @@ export default function PDVPage() {
     });
   }
 
+  // ✅ BUGFIX: não remover item quando o input fica "" enquanto o usuário digita
   function mudarQtd(produto_id, qtd) {
-    const n = Number(qtd || 0);
+    // permite apagar temporariamente (campo vazio) sem sumir com o item
+    if (qtd === "") {
+      setCarrinho((old) =>
+        old.map((it) =>
+          it.produto_id === produto_id ? { ...it, qtd: "" } : it
+        )
+      );
+      return;
+    }
+
+    // aceita só números inteiros
+    const n = Math.max(1, parseInt(String(qtd), 10) || 1);
+
     setCarrinho((old) =>
-      old
-        .map((it) => (it.produto_id === produto_id ? { ...it, qtd: n } : it))
-        .filter((it) => Number(it.qtd || 0) > 0)
+      old.map((it) => (it.produto_id === produto_id ? { ...it, qtd: n } : it))
     );
+  }
+
+  // ✅ opcional (sem mudar design): ao sair do campo, se estiver vazio, volta pra 1
+  function normalizarQtd(produto_id, qtdAtual) {
+    if (qtdAtual === "" || qtdAtual === null || qtdAtual === undefined) {
+      setCarrinho((old) =>
+        old.map((it) =>
+          it.produto_id === produto_id ? { ...it, qtd: 1 } : it
+        )
+      );
+    }
   }
 
   function remover(produto_id) {
@@ -126,6 +151,12 @@ export default function PDVPage() {
       return;
     }
 
+    // ✅ garante que não vai mandar qtd vazia pro backend
+    const carrinhoNormalizado = carrinho.map((it) => ({
+      ...it,
+      qtd: it.qtd === "" ? 1 : Number(it.qtd || 0),
+    }));
+
     try {
       const r = await fetch("/api/pdv-finalizar", {
         method: "POST",
@@ -134,7 +165,7 @@ export default function PDVPage() {
           forma_pagamento: forma,
           observacao: obs,
           baixarEstoque,
-          itens: carrinho.map((it) => ({
+          itens: carrinhoNormalizado.map((it) => ({
             produto_id: it.produto_id,
             qtd: Number(it.qtd || 0),
             // manda também preço/custo do momento (opcional)
@@ -297,6 +328,7 @@ export default function PDVPage() {
                       min="1"
                       value={it.qtd}
                       onChange={(e) => mudarQtd(it.produto_id, e.target.value)}
+                      onBlur={() => normalizarQtd(it.produto_id, it.qtd)}
                     />
                     <div className="ml-auto text-sm font-semibold">
                       {money(Number(it.qtd || 0) * Number(it.preco_unit || 0))}
