@@ -6,8 +6,14 @@ function money(n) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
-function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+
+  function todayISO() {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Sao_Paulo",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
 }
 
 export default function DespesasPage() {
