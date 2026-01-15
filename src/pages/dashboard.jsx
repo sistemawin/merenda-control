@@ -306,7 +306,15 @@ export default function DashboardPage() {
           <ResponsiveContainer>
             <BarChart data={topProdutos}>
               <CartesianGrid strokeDasharray="3 3" stroke="#27272a" />
-              <XAxis dataKey="produto" stroke="#a1a1aa" />
+              <XAxis
+  dataKey="produto"
+  stroke="#a1a1aa"
+  interval={0}
+  angle={-45}
+  textAnchor="end"
+  height={70}
+  tick={{ fontSize: 11 }}
+/>
               <YAxis stroke="#a1a1aa" />
               <Tooltip />
               <Bar dataKey="qtd" fill="#38bdf8" name="Quantidade" />
